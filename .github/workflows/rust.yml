@@ -34,12 +34,12 @@ jobs:
       
     - name: Rustfmt check
       run: cargo fmt -- --check
-    
-    - name: Cargo audit install
-      run: cargo install cargo-audit
-    
-    - name: Cargo audit run
-      run: cargo audit
+      
+    - name: Clippy install
+      run: rustup component add clippy
+   
+    - name: Clippy check
+      run: cargo clippy -- -D warnings
         
     - name: Run cargo-tarpaulin
       uses: actions-rs/tarpaulin@v0.1
@@ -58,12 +58,3 @@ jobs:
         name: code-coverage-report
         path: cobertura.xml
     
-  clippy_check:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
-      - run: rustup component add clippy
-      - uses: actions-rs/clippy-check@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          args: --all-features
