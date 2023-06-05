@@ -1,6 +1,8 @@
 //! tests/health_check.rs
 
+use sqlx::{Connection, PgConnection};
 use std::net::TcpListener;
+use zero_to_production::configuration::get_configuration;
 use zero_to_production::startup;
 
 fn spawn_app() -> String {
@@ -35,6 +37,11 @@ async fn health_check_works() {
 async fn subscribe_returns_a_200_for_valid_form_data() {
     // Arrange
     let app_address = spawn_app();
+    let configuraton = get_configuration().expect("Failed to read configuration");
+    let connection_string = configuraton.database.connection_string();
+    let connection = PgConnection::connect(&connection_string)
+        .await
+        .expect("Failed to connect to Postgres.");
     let client = reqwest::Client::new();
 
     // Act
