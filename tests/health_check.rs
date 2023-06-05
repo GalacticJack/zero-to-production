@@ -1,6 +1,7 @@
 //! tests/health_check.rs
 
 use sqlx::{Connection, PgConnection};
+use std::assert_eq;
 use std::net::TcpListener;
 use zero_to_production::configuration::get_configuration;
 use zero_to_production::startup;
@@ -39,7 +40,7 @@ async fn subscribe_returns_a_200_for_valid_form_data() {
     let app_address = spawn_app();
     let configuraton = get_configuration().expect("Failed to read configuration");
     let connection_string = configuraton.database.connection_string();
-    let connection = PgConnection::connect(&connection_string)
+    let mut connection = PgConnection::connect(&connection_string)
         .await
         .expect("Failed to connect to Postgres.");
     let client = reqwest::Client::new();
@@ -56,6 +57,14 @@ async fn subscribe_returns_a_200_for_valid_form_data() {
 
     // Assert
     assert_eq!(200, response.status().as_u16());
+
+    let saved = sqlx::query!("SELECT email, name FROM subscriptions")
+        .fetch_one(&mut connection)
+        .await
+        .expect("Failed to fetch saved subscription.");
+
+    assert_eq!(saved.email, "ursula_le_guin@gmail.com");
+    assert_eq!(saved.name, "le guin");
 }
 
 #[tokio::test]
