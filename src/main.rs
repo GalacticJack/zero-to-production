@@ -1,10 +1,8 @@
-use std::net::TcpListener;
 use sqlx::PgPool;
+use std::net::TcpListener;
 use zero_to_production::configuration::get_configuration;
 use zero_to_production::startup::run;
-use zero_to_production::telemetry::{get_subscriber, init_subscriber}
-
-
+use zero_to_production::telemetry::{get_subscriber, init_subscriber};
 
 #[tokio::main]
 async fn main() -> Result<(), std::io::Error> {
